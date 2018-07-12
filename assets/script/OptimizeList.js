@@ -35,29 +35,32 @@ cc.Class({
         if(y === this._lastY || this.node.height <= this.mask.height){
             return;
         }
-        // 是否下滑
-        const isDown = y > this._lastY;
+        // 是否上滑
+        const isUp = y > this._lastY;
         this._lastY = y;
         // 遍历所有的item如果有超出缓冲区则循环到另一侧缓冲区
         // 有可初始化的数据则重新初始化节点，如果没有可初始化的数据则隐藏节点
-        if(isDown){
+        if(isUp){
             let item = this._items[0];
-            while(this._outOfBuffTop(item)){
+            while(item && this._outOfBuffTop(item)){
+                this._moveToBottom(item);
                 this._items.shift();
                 this._items.push(item);
                 item = this._items[0];
             }
         }else{
-            let item = this._items[this.count - 1];
-            while (this._outOfBuffTop(item)) {
+            let item = this._items[this._itemCount - 1];
+            while (item && this._outOfBuffBottom(item)) {
+                this._moveToTop(item);
                 this._items.pop();
                 this._items.unshift(item);
-                item = this._items[this.count - 1];
+                item = this._items[this._itemCount - 1];
             }
         }
     },
 
     init (infos){
+        this.infos = infos;
         this._items = [];
         this.count = infos.length;
         if(this.count < 1){
@@ -65,9 +68,7 @@ cc.Class({
             this.node.setContentSize(cc.size(0, 0));
             return;
         }
-        this.infos = infos;
-        const item = cc.instantiate(this.itemPrefab);
-        item.parent = this.node;
+        const item = this._addItem();
         const height = (item.height + this.spacingY) * this.count - this.spacingY;
         const width = item.width;
         this.node.setContentSize(cc.size(width, height));
@@ -87,17 +88,23 @@ cc.Class({
         this._itemCount = Math.floor(this._buffSize.height / (this._itemHeight +  this.spacingY)) + 1
         // 初始化节点
         for(let i = 1; i < this._itemCount; i++){
-            const item = cc.instantiate(this.itemPrefab);
-            item.parent = this.node;
+            const item = this._addItem();
             this._initItem(item, i);
             this._items.push(item);
         }
     },
 
     _getItemPosByIndex(index){
-        const y = index * (this.itemHeight + this.spacingY);
+        const y = -index * (this._itemHeight + this.spacingY);
         const x = 0;
         return cc.v2(x, y);
+    },
+
+    _addItem(){
+        // prefab需要锚点在cc.v2(0.5, 1), 否则其子节点位置可能会出现问题
+        const item = cc.instantiate(this.itemPrefab);
+        item.parent = this.node;
+        return item;
     },
 
     _initItem(item, index){
@@ -105,7 +112,7 @@ cc.Class({
         const info = index >= 0 && this.infos[index];
         item.setAnchorPoint(cc.v2(0.5, 1));
         item.setPosition(this._getItemPosByIndex(index));
-        if(info){
+        if(index >=0 && info !== null && info !== undefined){
             item.active = true;
             const script = item.getComponent(this.itemScriptName);
             script[this.itemScriptFuncName](info);
