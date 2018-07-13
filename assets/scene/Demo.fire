@@ -339,7 +339,9 @@
     },
     "itemScriptName": "ListItemPref",
     "itemScriptFuncName": "init",
+    "column": 2,
     "spacingY": 10,
+    "spacingX": 10,
     "mask": {
       "__id__": 5
     }
