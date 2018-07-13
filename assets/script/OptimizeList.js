@@ -42,7 +42,7 @@ cc.Class({
         // 有可初始化的数据则重新初始化节点，如果没有可初始化的数据则隐藏节点
         if(isUp){
             let item = this._items[0];
-            while(item && this._outOfBuffTop(item)){
+            while(item && this._outOfVisibleTop(item)){
                 this._moveToBottom(item);
                 this._items.shift();
                 this._items.push(item);
@@ -50,7 +50,7 @@ cc.Class({
             }
         }else{
             let item = this._items[this._itemCount - 1];
-            while (item && this._outOfBuffBottom(item)) {
+            while (item && this._outOfVisibleBottom(item)) {
                 this._moveToTop(item);
                 this._items.pop();
                 this._items.unshift(item);
@@ -84,14 +84,14 @@ cc.Class({
         this._itemWidth = item.width;
         this._itemHeight = item.height;
         this._visibleSize = this.mask.getContentSize();
-        this._buffSize = cc.size(this._visibleSize.width, this._visibleSize.height * 2);
-        this._itemCount = Math.floor(this._buffSize.height / (this._itemHeight +  this.spacingY)) + 1
+        this._itemCount = Math.ceil(this._visibleSize.height / (this._itemHeight +  this.spacingY)) + 2
         // 初始化节点
         for(let i = 1; i < this._itemCount; i++){
             const item = this._addItem();
             this._initItem(item, i);
             this._items.push(item);
         }
+        console.log(`一共创建了${this._itemCount}个Item实例`);
     },
 
     _getItemPosByIndex(index){
@@ -131,15 +131,15 @@ cc.Class({
         this._topIndex--;
     },
 
-    _outOfBuffTop(item){
+    _outOfVisibleTop(item){
         const wpos = this.node.convertToWorldSpaceAR(cc.v2(item.x, item.y - item.height));
         const mpos = this.mask.convertToNodeSpaceAR(wpos);
-        return mpos.y > this.mask.height;
+        return mpos.y > this.mask.height / 2;
     },
 
-    _outOfBuffBottom(item){
+    _outOfVisibleBottom(item){
         const wpos = this.node.convertToWorldSpaceAR(item.getPosition());
         const mpos = this.mask.convertToNodeSpaceAR(wpos);
-        return mpos.y < -this.mask.height;
+        return mpos.y < -this.mask.height / 2;
     }
 });
