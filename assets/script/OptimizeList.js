@@ -21,10 +21,20 @@ cc.Class({
         mask: cc.Node
     },
 
+    statics: {
+        SELECT_ITEM_EVENT: 'SELECT_ITEM_EVENT'
+    },
+
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-
+        this.node.on('SELECT_ITEM_EVENT', (event)=>{
+            if(typeof event.detail === 'function'){
+                this.setSelectFilter(event.detail);
+            }else{
+                console.warn('SELECT_ITEM_EVENT 事件的detail没有设置为选择器函数');
+            }
+        });
     },
 
     start () {
@@ -61,9 +71,12 @@ cc.Class({
         }
     },
 
-    refresh (infos){
+    refresh (infos, filter){
+        if(typeof filter === 'function'){
+            this._selectFilter = filter;
+        }
         if (!this._initedFlag) {
-            this.init(infos);
+            this._init(infos);
             return;
         }
         this.infos = infos;
@@ -83,6 +96,16 @@ cc.Class({
         }
     },
 
+    getSelectInfo(){
+        return this._selectInfo;
+    },
+
+    setSelectFilter(filter){
+        //Boolean filter(info)判定是否是被选中
+        this._selectFilter = filter;
+        this.refresh(this.infos, filter);
+    },
+
     _onRowCountReduced(infos) {
         // 调节位置
         let item = this._rowItems[this.rowItemCount - 1];
@@ -94,7 +117,8 @@ cc.Class({
         }
     },
 
-    init (infos){
+    // 不建议直接调用这个，可以直接调用refresh方法
+    _init (infos){
         this.infos = infos;
         this.itemCount = this.infos.length;
         this._rowItems = [];
@@ -176,6 +200,17 @@ cc.Class({
             item.active = true;
             const script = item.getComponent(this.itemScriptName);
             script[this.itemScriptFuncName](info);
+            if(typeof this._selectFilter === 'function' &&
+                typeof script.select === 'function' && 
+                typeof script.unselect === 'function'){
+                const selected = this._selectFilter(info);
+                if(selected){
+                    script.select();
+                    this._selectInfo = info;
+                }else{
+                    script.unselect();
+                }
+            }
         } else {
             item.active = false;
         }

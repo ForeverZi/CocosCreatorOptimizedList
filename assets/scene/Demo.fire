@@ -261,7 +261,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 400,
+      "width": 700,
       "height": 500
     },
     "_rotationX": 0,
@@ -343,7 +343,7 @@
     "itemPrefab": {
       "__uuid__": "3b85417c-0350-4149-9cf4-f4cfc772c825"
     },
-    "itemScriptName": "ListItemPref",
+    "itemScriptName": null,
     "itemScriptFuncName": "init",
     "column": 2,
     "spacingY": 10,
@@ -508,7 +508,7 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_actualFontSize": 40,
+    "_actualFontSize": 20,
     "_fontSize": 20,
     "_lineHeight": 40,
     "_enableWrapText": false,
@@ -744,7 +744,7 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_actualFontSize": 40,
+    "_actualFontSize": 20,
     "_fontSize": 20,
     "_lineHeight": 40,
     "_enableWrapText": false,

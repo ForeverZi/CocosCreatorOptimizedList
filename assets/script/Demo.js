@@ -21,7 +21,9 @@ cc.Class({
             this.infos.push(i);
         }
         const script = this.content.getComponent('OptimizeList');
-        script.init(this.infos);
+        script.refresh(this.infos, (info)=>{
+            return info===1;
+        });
     },
 
     start () {
