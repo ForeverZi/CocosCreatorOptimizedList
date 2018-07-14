@@ -61,17 +61,51 @@ cc.Class({
         }
     },
 
+    refresh (infos){
+        if (!this._initedFlag) {
+            this.init(infos);
+            return;
+        }
+        this.infos = infos;
+        this.itemCount = this.infos.length;
+        // 修改content的高度
+        const height = (this._itemHeight + this.spacingY) * Math.ceil(infos.length / this.column) - this.spacingY;
+        const osize = this.node.getContentSize();
+        this.node.setContentSize(cc.size(osize.width, height));
+        if(infos.length < this.itemCount){
+            this._onRowCountReduced(infos);
+        }
+        // 刷新所有缓存的rowItem
+        let i = 0;
+        for (const rowItem of this._rowItems) {
+            this._initRowItem(rowItem, this._topIndex + i);
+            i++;
+        }
+    },
+
+    _onRowCountReduced(infos) {
+        // 调节位置
+        let item = this._rowItems[this.rowItemCount - 1];
+        while (item && (this._outOfVisibleBottom(item) || ((this.rowItemCount + this._topIndex - 1)*this.column >= infos.length))) {
+            this._moveToTop(item);
+            this._rowItems.pop();
+            this._rowItems.unshift(item);
+            item = this._rowItems[this.rowItemCount - 1];
+        }
+    },
+
     init (infos){
         this.infos = infos;
+        this.itemCount = this.infos.length;
         this._rowItems = [];
-        this.count = infos.length;
-        if(this.count < 1){
+        if (this.itemCount < 1){
             // 没有要显示的节点
             this.node.setContentSize(cc.size(0, 0));
             return;
         }
+        this._initedFlag = true;
         const rowItem = this._addRowItem();
-        const height = (rowItem.height + this.spacingY) * Math.ceil(this.count / this.column) - this.spacingY;
+        const height = (rowItem.height + this.spacingY) * Math.ceil(infos.length / this.column) - this.spacingY;
         const width = rowItem.width;
         this.node.setContentSize(cc.size(width, height));
         this.node.setAnchorPoint(cc.v2(0.5, 1));
