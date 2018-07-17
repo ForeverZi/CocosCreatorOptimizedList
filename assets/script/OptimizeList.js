@@ -44,7 +44,7 @@ cc.Class({
     update (dt) {
         // 判断上滑还是下滑
         const y = this.node.y;
-        if(y === this._lastY || this.node.height <= this.mask.height){
+        if(y === this._lastY || this.node.height <= this.mask.height || !this._initedFlag){
             return;
         }
         // 是否上滑
