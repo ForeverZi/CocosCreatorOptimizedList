@@ -72,6 +72,7 @@ cc.Class({
     },
 
     refresh (infos, filter){
+        this._selectInfo = null;
         if(typeof filter === 'function'){
             this._selectFilter = filter;
         }
