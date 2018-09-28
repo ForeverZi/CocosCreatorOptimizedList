@@ -12,16 +12,6 @@ cc.Class({
         selectPanel: cc.Node
     },
 
-    // LIFE-CYCLE CALLBACKS:
-
-    // onLoad () {},
-
-    start () {
-
-    },
-
-    // update (dt) {},
-
     init(num){
         this.info = num;
         this.node.getChildByName('num').getComponent(cc.Label).string = num;
@@ -36,9 +26,10 @@ cc.Class({
     },
 
     onClick(){
-        // select
         const event = new cc.Event.EventCustom('SELECT_ITEM_EVENT', true);
-        event.detail = (info)=>this.info===info;
+        // 注意这里不应该使用this.info和info比较,而是需要将this.info赋值为一个闭包变量,this.info会因为list的刷新而改变
+        const cinfo = this.info;
+        event.detail = (info)=>cinfo===info;
         this.node.dispatchEvent(event);
     }
 });
