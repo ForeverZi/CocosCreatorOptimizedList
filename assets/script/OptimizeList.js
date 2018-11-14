@@ -25,8 +25,6 @@ cc.Class({
         SELECT_ITEM_EVENT: 'SELECT_ITEM_EVENT'
     },
 
-    // LIFE-CYCLE CALLBACKS:
-
     onLoad () {
         this.node.on('SELECT_ITEM_EVENT', (event)=>{
             if(typeof event.detail === 'function'){
@@ -35,10 +33,6 @@ cc.Class({
                 console.warn('SELECT_ITEM_EVENT 事件的detail没有设置为选择器函数');
             }
         });
-    },
-
-    start () {
-
     },
 
     update (dt) {
@@ -71,6 +65,24 @@ cc.Class({
         }
     },
 
+    // 用于切换列表数据时适应位置
+    _adjust() {
+        let item = this._rowItems[0];
+        while (item && this._outOfVisibleTop(item)) {
+            this._moveToBottom(item);
+            this._rowItems.shift();
+            this._rowItems.push(item);
+            item = this._rowItems[0];
+        }
+        item = this._rowItems[this.rowItemCount - 1];
+        while (item && this._outOfVisibleBottom(item)) {
+            this._moveToTop(item);
+            this._rowItems.pop();
+            this._rowItems.unshift(item);
+            item = this._rowItems[this.rowItemCount - 1];
+        }
+    },
+
     refresh (infos, filter){
         this._selectInfo = null;
         if(typeof filter === 'function'){
@@ -89,6 +101,7 @@ cc.Class({
         if(infos.length < this.itemCount){
             this._onRowCountReduced(infos);
         }
+        this._adjust();
         // 刷新所有缓存的rowItem
         let i = 0;
         for (const rowItem of this._rowItems) {
