@@ -1,2 +1,2 @@
 # CocosCreatorOptimizedList
-a optimized list for cocos creator
+an optimized list for cocos creator
